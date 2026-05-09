@@ -9,3 +9,4 @@ INSERT INTO productos (nombre, precio) VALUES
   ('Collar rojo', 5990),
   ('Pelota de goma', 2990),
   ('Cama para perro', 19990);
+-- trigger
