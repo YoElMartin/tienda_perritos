@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tienda Perritos í°¶</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; }
+    .producto { border: 1px solid #ccc; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Tienda Perritos í°¶</h1>
+  <div id="productos">Cargando...</div>
+  <script>
+    fetch('http://TU_IP_PUBLICA_BACKEND:3001/productos')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('productos').innerHTML =
+          data.map(p => `<div class="producto"><strong>${p.nombre}</strong> â€” $${p.precio}</div>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('productos').innerHTML = 'Error conectando al backend';
+      });
+  </script>
+</body>
+</html>

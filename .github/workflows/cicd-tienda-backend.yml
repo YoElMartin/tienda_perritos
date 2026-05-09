@@ -1,0 +1,29 @@
+name: CI/CD - Backend
+on:
+  push:
+    paths:
+      - 'backend/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v1
+      - name: Build y Push Backend
+        run: |
+          docker build -t tienda-backend ./backend
+          docker tag tienda-backend:latest ${{ secrets.ECR_REPO_URL_BACKEND }}:latest
+          docker push ${{ secrets.ECR_REPO_URL_BACKEND }}:latest
+      - name: Deploy Backend via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --region "${{ secrets.AWS_REGION }}" \
+            --parameters commands='["aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}","docker pull ${{ secrets.ECR_REPO_URL_BACKEND }}:latest","docker stop tienda-backend || true","docker rm tienda-backend || true","docker run -d --name tienda-backend -p 3001:3001 -e DB_HOST=${{ secrets.EC2_DB_PRIVATE_IP }} -e DB_USER=root -e DB_PASS=admin123 ${{ secrets.ECR_REPO_URL_BACKEND }}:latest"]'
