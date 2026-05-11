@@ -10,3 +10,4 @@ INSERT INTO productos (nombre, precio) VALUES
   ('Pelota de goma', 2990),
   ('Cama para perro', 19990);
 -- trigger
+-- retry
